@@ -62,7 +62,10 @@ public class GazeGestureManager : MonoBehaviour {
     void onPhotoCaptured(List<byte> image, int width, int height) {
         string val = qrDecoder.Decode(image.ToArray(), width, height);
         Debug.Log(val);
-        if (val != null) {
+        if(GameObject.Find ("QrSight").transform.localScale == new Vector3(0, 0, 0)){
+			updateUIPos();
+		}
+		else if (val != null) {
             showText(val);
             captureAudioSource.Play();
         } else {
@@ -81,12 +84,23 @@ public class GazeGestureManager : MonoBehaviour {
             MyGameObject = model.transform.GetChild(0).GetChild(0).gameObject;
 			MeshCollider MymeshCollider = MyGameObject.AddComponent<MeshCollider>();
 			model.transform.Rotate(0, -90, 0);
-			var temp = new Vector3(-.95f, -0.20f, 5.0f);
+			var temp = new Vector3(-.95f, -0.70f, 1.0f);
 			model.transform.position = temp;
             var obj = Instantiate(TextViewPrefab, hitInfo.point, Quaternion.identity);
             StartCoroutine(GetText(obj));
         }
     }
+	
+	void updateUIPos(){
+        var headPosition = Camera.main.transform.position;
+        var gazeDirection = Camera.main.transform.forward;
+        RaycastHit hitInfo;
+        if (Physics.Raycast(headPosition, gazeDirection, out hitInfo)) {
+			
+			var temp = new Vector3(headPosition.x, headPosition.y, headPosition.z + 2.0f);
+			DUI.transform.position = temp;
+        }
+	}
 	
 		void showUI(int passedID){
 		
@@ -139,6 +153,15 @@ public class GazeGestureManager : MonoBehaviour {
                 // Show results as text
                 var N = JSON.Parse(www.downloadHandler.text);
                 var texture = GetTexture();
+				
+				for(var i=0;i< N["data"].Count; i++)
+                {
+					myCollection.Add(N["data"][i]["inspectionFieldText"]);
+					myCollection2.Add(N["data"][i]["critical"]);
+					myCollection3.Add(N["data"][i]["complaint"]);
+					myCollection4.Add(N["data"][i]["inspComment"]);
+                }
+				
                 if (N["data"].Count >= 1)
                 {
                     // set the default color GREEN for the vehicle
@@ -171,6 +194,9 @@ public class GazeGestureManager : MonoBehaviour {
                 //Apply the texture to the main game object
                 MyGameObject.GetComponent<Renderer>().material.mainTexture = texture;
                 showUI(0);
+				
+				var textMesh = obj.GetComponent<TextMesh>();
+           		textMesh.text = "";
 				
             }
         }
