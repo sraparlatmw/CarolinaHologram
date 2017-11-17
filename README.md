@@ -1,5 +1,5 @@
-# Hololens QR Code Reader
-
-## Related blog entry
-1. http://hiroyky.hatenablog.com/entry/2017/02/23/005957
-2. http://hiroyky.hatenablog.com/entry/2017/02/26/222500
+# TMW Hackathon 2017 Event -
+Team Name:-  Caroline Hologram
+Members :
+1. Ryan Snell (Team Lead)
+2. Siva Raparla
