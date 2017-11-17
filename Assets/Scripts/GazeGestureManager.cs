@@ -195,6 +195,9 @@ public class GazeGestureManager : MonoBehaviour {
                 MyGameObject.GetComponent<Renderer>().material.mainTexture = texture;
                 showUI(0);
 				
+				var textMesh = obj.GetComponent<TextMesh>();
+           		textMesh.text = "";
+				
             }
         }
     }
