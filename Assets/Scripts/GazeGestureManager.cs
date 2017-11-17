@@ -146,17 +146,22 @@ public class GazeGestureManager : MonoBehaviour {
                     for (var i = 0; i < N["data"].Count; i++)
                     {
                         Debug.Log(N["data"][i]["inspectionFieldText"]);
-                        if (!string.IsNullOrEmpty(N["data"][i]["inspectionFieldText"]) && N["data"][i]["inspectionFieldText"] == "Rear Windshield")
-                        {
-                            texture = SetRearWindSheildColorFailure(texture);
-                        }
-                        else if (!string.IsNullOrEmpty(N["data"][i]["inspectionFieldText"]) && N["data"][i]["inspectionFieldText"] == "Front Bumper")
+
+                        if (!string.IsNullOrEmpty(N["data"][i]["inspectionFieldText"]) && N["data"][i]["inspectionFieldText"] == "Front Bumper")
                         {
                             texture = SetFrontBumperColorFailure(texture);
                         }
                         else if (!string.IsNullOrEmpty(N["data"][i]["inspectionFieldText"]) && N["data"][i]["inspectionFieldText"] == "Back Bumper")
                         {
                             texture = SetBackBumperColorFailure(texture);
+                        }
+                        else if (!string.IsNullOrEmpty(N["data"][i]["inspectionFieldText"]) && N["data"][i]["inspectionFieldText"] == "Front Windshield")
+                        {
+                            texture = SetFrontWindSheildColorFailure(texture);
+                        }
+                        else if (!string.IsNullOrEmpty(N["data"][i]["inspectionFieldText"]) && N["data"][i]["inspectionFieldText"] == "Rear Windshield")
+                        {
+                            texture = SetRearWindSheildColorFailure(texture);
                         }
                     }
                 }
@@ -210,26 +215,28 @@ public class GazeGestureManager : MonoBehaviour {
         return texture;
     }
 
+    public Texture2D SetFrontWindSheildColorFailure(Texture2D texture)
+    {
+        for (int i = 0; i < width; i++)
+        {
+            for (var k = 5; k < 11; k++)
+            {
+                texture.SetPixel(k, height - 1 - i, Color.red);
+            }
+        }
+        return texture;
+    }
+
     public Texture2D SetDefaultColor(Texture2D texture)
     {
-        //FRONT WINDSHIELD
+        //Default Green
         for (int i = 0; i < width; i++)
         {
-            for (var m = 5; m < 11; m++)
-            {
-                texture.SetPixel(m, height - 1 - i, Color.green);
-            }
-
-        }
-
-        for (int i = 0; i < width; i++)
-        {
-            for (var k = 23; k < 56; k++)
+            for (var k = 0; k < 56; k++)
             {
                 texture.SetPixel(k, height - 1 - i, Color.green);
             }
         }
-
         return texture;
     }
 
@@ -237,7 +244,6 @@ public class GazeGestureManager : MonoBehaviour {
     {
         var texture = new Texture2D(width, height, TextureFormat.ARGB32, false);
         texture.filterMode = FilterMode.Point;
-
         return texture;
     }
 }
