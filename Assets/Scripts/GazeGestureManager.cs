@@ -36,7 +36,8 @@ public class GazeGestureManager : MonoBehaviour {
         gestureRecognizer.TappedEvent += GestureRecognizer_TappedEvent;
         gestureRecognizer.StartCapturingGestures();
         qrDecoder = gameObject.AddComponent<QrDecoder>();
-	}
+        
+}
 
     void Start() {
         captureAudioSource = gameObject.AddComponent<AudioSource>();
@@ -45,6 +46,7 @@ public class GazeGestureManager : MonoBehaviour {
         failedAudioSource = gameObject.AddComponent<AudioSource>();
         failedAudioSource.clip = failedAudioClip;
         failedAudioSource.playOnAwake = false;
+
     }
 
     private void Update() {
@@ -70,7 +72,7 @@ public class GazeGestureManager : MonoBehaviour {
         var gazeDirection = Camera.main.transform.forward;
         RaycastHit hitInfo;
         if (Physics.Raycast(headPosition, gazeDirection, out hitInfo)) {
-
+			GameObject.Find ("QrSight").transform.localScale = new Vector3(0, 0, 0);
             model = Instantiate(Resources.Load("mazdaMC", typeof(GameObject))) as GameObject;
             //Material mat = Resources.Load("Models/Materials/Mazda_0-3") as Material;
             MyGameObject = model.transform.GetChild(0).GetChild(0).gameObject;

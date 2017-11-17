@@ -527,7 +527,7 @@ PlayerSettings:
   metroCertificateNotAfter: 0057d91b5aa7d301
   metroApplicationDescription: HololensQrCodeReader
   wsaImages: {}
-  metroTileShortName: 
+  metroTileShortName: HololensQrCodeReader
   metroCommandLineArgsFile: 
   metroTileShowName: 0
   metroMediumTileShowName: 0
