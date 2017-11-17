@@ -163,9 +163,12 @@ MonoBehaviour:
   captureAudioClip: {fileID: 8300000, guid: ba28a003ab4b104408a1b00137597a12, type: 3}
   failedAudioClip: {fileID: 8300000, guid: c6602802d37812a41816cd4c7a08ff66, type: 3}
   model: {fileID: 0}
+  DUI: {fileID: 0}
   MyGameObject: {fileID: 0}
-  QRSight: {fileID: 0}
   myCollection: []
+  myCollection2: []
+  myCollection3: []
+  myCollection4: []
   width: 56
   height: 56
 --- !u!4 &351547294
@@ -223,6 +226,11 @@ Prefab:
     - target: {fileID: 1023751143261938, guid: 9b9b1a05508b87840b3c314fdbe0846b, type: 2}
       propertyPath: m_IsActive
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 102351286974510754, guid: 9b9b1a05508b87840b3c314fdbe0846b,
+        type: 2}
+      propertyPath: m_Text
+      value: Scan your Unit's QR CODE
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 9b9b1a05508b87840b3c314fdbe0846b, type: 2}

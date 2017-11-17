@@ -63,7 +63,7 @@ public class GazeGestureManager : MonoBehaviour {
         string val = qrDecoder.Decode(image.ToArray(), width, height);
         Debug.Log(val);
         if(GameObject.Find ("QrSight").transform.localScale == new Vector3(0, 0, 0)){
-			updateUIPos();
+			 StartCoroutine(GetTextAgain());
 		}
 		else if (val != null) {
             showText(val);
@@ -84,7 +84,7 @@ public class GazeGestureManager : MonoBehaviour {
             MyGameObject = model.transform.GetChild(0).GetChild(0).gameObject;
 			MeshCollider MymeshCollider = MyGameObject.AddComponent<MeshCollider>();
 			model.transform.Rotate(0, -90, 0);
-			var temp = new Vector3(-.95f, -0.70f, 1.0f);
+			var temp = new Vector3(-0.25f, 0f, 0.0f);
 			model.transform.position = temp;
             var obj = Instantiate(TextViewPrefab, hitInfo.point, Quaternion.identity);
             StartCoroutine(GetText(obj));
@@ -95,11 +95,32 @@ public class GazeGestureManager : MonoBehaviour {
         var headPosition = Camera.main.transform.position;
         var gazeDirection = Camera.main.transform.forward;
         RaycastHit hitInfo;
-        if (Physics.Raycast(headPosition, gazeDirection, out hitInfo)) {
+        //if (Physics.Raycast(headPosition, gazeDirection, out hitInfo)) {
+		
+		var pos = GameObject.Find("mazdaMC").transform.position;		
 			
-			var temp = new Vector3(headPosition.x, headPosition.y, headPosition.z + 2.0f);
-			DUI.transform.position = temp;
-        }
+		var temp = new Vector3(pos.x/2, pos.y+1.0f, pos.z/2);
+		DUI.transform.position = temp;
+        //}
+		
+		RaycastHit hit;
+        if (!Physics.Raycast(Camera.main.ScreenPointToRay(headPosition), out hit))
+            return;
+
+        Renderer rend = hit.transform.GetComponent<Renderer>();
+        MeshCollider meshCollider = hit.collider as MeshCollider;
+
+        if (rend == null || rend.sharedMaterial == null || rend.sharedMaterial.mainTexture == null || meshCollider == null)
+            return;
+
+        Texture2D tex = rend.material.mainTexture as Texture2D;
+        Vector2 pixelUV = hit.textureCoord;
+		
+		var item0 = DUI.transform.Find("dt-00").gameObject;
+		var textMesh = item0.GetComponent<TextMesh>();
+		textMesh.text = pixelUV.x.ToString();
+		
+		
 	}
 	
 		void showUI(int passedID){
@@ -188,19 +209,88 @@ public class GazeGestureManager : MonoBehaviour {
                         }
                     }
                 }
+				else{
+					SetDefaultColor(texture);
+				}
                 //Apply the texture
                 texture.Apply();
 
                 //Apply the texture to the main game object
                 MyGameObject.GetComponent<Renderer>().material.mainTexture = texture;
-                showUI(0);
+                //showUI(0);
 				
 				var textMesh = obj.GetComponent<TextMesh>();
-           		textMesh.text = "";
+           		textMesh.transform.localScale = new Vector3(0, 0, 0);
 				
             }
         }
     }
+	
+	
+	public IEnumerator GetTextAgain()
+    {
+        using (UnityWebRequest www = UnityWebRequest.Get("http://rdu-rsnell.tmwsystems.com/AMSServerapi/api/inspections?activeCode=Y&defective=Y&unitId=159&appid=null"))
+        {
+            www.SetRequestHeader("Authorization", "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1bmlxdWVfbmFtZSI6InJzbmVsbCIsIm5iZiI6MTUwODQzOTkyMCwiZXhwIjoxNTExMTE4MzIwLCJpYXQiOjE1MDg0Mzk5MjB9.7anRXYIGKKPnKb9OOjKnVqzEVou3R-gcDAfSzG-5yEE");
+            yield return www.Send();
+
+            if (www.isNetworkError || www.isHttpError)
+            {
+                Debug.Log(www.error);
+            }
+            else
+            {
+                // Show results as text
+                var N = JSON.Parse(www.downloadHandler.text);
+                var texture = GetTexture();
+				
+				for(var i=0;i< N["data"].Count; i++)
+                {
+					myCollection.Add(N["data"][i]["inspectionFieldText"]);
+					myCollection2.Add(N["data"][i]["critical"]);
+					myCollection3.Add(N["data"][i]["complaint"]);
+					myCollection4.Add(N["data"][i]["inspComment"]);
+                }
+				
+                if (N["data"].Count >= 1)
+                {
+                    // set the default color GREEN for the vehicle
+                    texture = SetDefaultColor(texture);
+                    for (var i = 0; i < N["data"].Count; i++)
+                    {
+                        Debug.Log(N["data"][i]["inspectionFieldText"]);
+
+                        if (!string.IsNullOrEmpty(N["data"][i]["inspectionFieldText"]) && N["data"][i]["inspectionFieldText"] == "Front Bumper")
+                        {
+                            texture = SetFrontBumperColorFailure(texture);
+                        }
+                        else if (!string.IsNullOrEmpty(N["data"][i]["inspectionFieldText"]) && N["data"][i]["inspectionFieldText"] == "Back Bumper")
+                        {
+                            texture = SetBackBumperColorFailure(texture);
+                        }
+                        else if (!string.IsNullOrEmpty(N["data"][i]["inspectionFieldText"]) && N["data"][i]["inspectionFieldText"] == "Front Windshield")
+                        {
+                            texture = SetFrontWindSheildColorFailure(texture);
+                        }
+                        else if (!string.IsNullOrEmpty(N["data"][i]["inspectionFieldText"]) && N["data"][i]["inspectionFieldText"] == "Rear Windshield")
+                        {
+                            texture = SetRearWindSheildColorFailure(texture);
+                        }
+                    }
+                }
+				else{
+					SetDefaultColor(texture);
+				}
+                //Apply the texture
+                texture.Apply();
+
+                //Apply the texture to the main game object
+                MyGameObject.GetComponent<Renderer>().material.mainTexture = texture;
+     			
+            }
+        }
+    }
+	
 
     public Texture2D SetFrontBumperColorFailure(Texture2D texture)
     {
