@@ -15,10 +15,14 @@ public class GazeGestureManager : MonoBehaviour {
     public AudioClip captureAudioClip;
     public AudioClip failedAudioClip;
     public GameObject model;
+	public GameObject DUI;
     public GameObject MyGameObject;
 	
 		
 	public List<string> myCollection = new List<string>();
+	public List<string> myCollection2 = new List<string>();
+	public List<string> myCollection3 = new List<string>();
+	public List<string> myCollection4 = new List<string>();
 
     GestureRecognizer gestureRecognizer;
     PhotoInput photoInput;
@@ -46,7 +50,6 @@ public class GazeGestureManager : MonoBehaviour {
         failedAudioSource = gameObject.AddComponent<AudioSource>();
         failedAudioSource.clip = failedAudioClip;
         failedAudioSource.playOnAwake = false;
-
     }
 
     private void Update() {
@@ -73,9 +76,13 @@ public class GazeGestureManager : MonoBehaviour {
         RaycastHit hitInfo;
         if (Physics.Raycast(headPosition, gazeDirection, out hitInfo)) {
 			GameObject.Find ("QrSight").transform.localScale = new Vector3(0, 0, 0);
-            model = Instantiate(Resources.Load("mazdaMC", typeof(GameObject))) as GameObject;
+			model = Instantiate(Resources.Load("mazdaMC", typeof(GameObject))) as GameObject;
             //Material mat = Resources.Load("Models/Materials/Mazda_0-3") as Material;
             MyGameObject = model.transform.GetChild(0).GetChild(0).gameObject;
+			MeshCollider MymeshCollider = MyGameObject.AddComponent<MeshCollider>();
+			model.transform.Rotate(0, -90, 0);
+			var temp = new Vector3(-.95f, -0.20f, 5.0f);
+			model.transform.position = temp;
 
             var texture = new Texture2D(width, height, TextureFormat.ARGB32, false);
             texture.filterMode = FilterMode.Point;
@@ -123,6 +130,41 @@ public class GazeGestureManager : MonoBehaviour {
         }
     }
 	
+		void showUI(int passedID){
+		
+		DUI = Instantiate(Resources.Load("DUI", typeof(GameObject))) as GameObject;
+		
+		var temp = new Vector3(0, 0, 1.25f);
+        DUI.transform.position = temp;
+		DUI.transform.localScale = new Vector3(0.22f, 0.13f, 0.01f);
+		
+		//Failed Item		
+		var item0 = DUI.transform.Find("dt-00").gameObject;
+		var textMesh = item0.GetComponent<TextMesh>();
+		textMesh.text = myCollection[passedID];
+		
+		//Critical
+		if(myCollection2[passedID]=="false"){
+			myCollection2[passedID] = "N";
+		}
+		else{
+			myCollection2[passedID] ="Y";
+		}
+		var item1 = DUI.transform.Find("dt-01").gameObject;
+		var textMesh1 = item1.GetComponent<TextMesh>();
+		textMesh1.text = myCollection2[passedID];
+		
+		//Complaints
+		var item2 = DUI.transform.Find("dt-02").gameObject;
+		var textMesh2 = item2.GetComponent<TextMesh>();
+		textMesh2.text = myCollection3[passedID];
+		
+		//Comments 
+		var item3 = DUI.transform.Find("dt-03").gameObject;
+		var textMesh3 = item3.GetComponent<TextMesh>();
+		textMesh3.text = myCollection4[passedID];
+	}
+	
 	public IEnumerator GetText(GameObject obj)
     {
         using (UnityWebRequest www = UnityWebRequest.Get("http://rdu-rsnell.tmwsystems.com/AMSServerapi/api/inspections?activeCode=Y&defective=Y&unitId=159&appid=null"))
@@ -142,13 +184,18 @@ public class GazeGestureManager : MonoBehaviour {
                 {
                     Debug.Log(N["data"][i]["inspectionFieldText"]);
 					myCollection.Add(N["data"][i]["inspectionFieldText"]);
+					myCollection2.Add(N["data"][i]["critical"]);
+					myCollection3.Add(N["data"][i]["complaint"]);
+					myCollection4.Add(N["data"][i]["inspComment"]);
                 }
                 // Or retrieve results as binary data
                 byte[] results = www.downloadHandler.data;
 				
 				
            		var textMesh = obj.GetComponent<TextMesh>();
-           		textMesh.text = N["data"][0]["inspectionFieldText"];
+           		textMesh.text = "";
+
+				showUI(0);
 				
             }
         }
