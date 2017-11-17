@@ -49,15 +49,15 @@ public class PhotoInput : MonoBehaviour {
             return;
         }
 
-        // 撮影画像の取得
+        // Capture images
         List<byte> buffer = new List<byte>();
         photoCaptureFrame.CopyRawImageDataIntoBuffer(buffer);
         photoCapture.StopPhotoModeAsync(onStoppedPhotoMode);
 
-        // QR照準内のみを切り取る
+        //Cut out only within the QR sight
         List<byte> trimmedBuffer = trimmingQrSight(buffer, 4);
 
-        // QR照準内の画像を保存
+        // Save image in QR sight
         Texture2D tex = createTexture(trimmedBuffer, cameraParameters.cameraResolutionWidth, cameraParameters.cameraResolutionHeight);
         saveToFile(tex);
 
@@ -71,7 +71,7 @@ public class PhotoInput : MonoBehaviour {
         var direction = QrSight.transform.forward;
         var scale = QrSight.transform.localScale;
 
-        // ワールド座標系でのQR照準の座標を求めます．
+        // Find the coordinates of the QR aim in the world coordinate system
         var leftTop = new Vector3(
                 position.x - scale.x / 2,
                 position.y + scale.y / 2,
@@ -90,32 +90,30 @@ public class PhotoInput : MonoBehaviour {
                 position.z);
 
 #if false
-        /* Rayを使うかどうかが悩みどころ；；*/
         RaycastHit leftTopHit, rightTopHit, leftBottomHit, rightBottomHit;
         Physics.Raycast(leftTop, direction, out leftTopHit);
         Physics.Raycast(rightTop, direction, out rightTopHit);
         Physics.Raycast(leftBottom, direction, out leftBottomHit);
         Physics.Raycast(rightBottom, direction, out rightBottomHit);
 
-        // ワールド座標系を投影座標系に変換
         var leftTopScreen = Camera.main.WorldToScreenPoint(leftTopHit.point);
         var rightTopScreen = Camera.main.WorldToScreenPoint(rightTopHit.point);
         var leftBottomScreen = Camera.main.WorldToScreenPoint(leftBottomHit.point);
         var rightBottomScreen = Camera.main.WorldToScreenPoint(rightBottomHit.point);
 #else
-        // ワールド座標系を投影座標系に変換
+        // Convert world coordinate system to projected coordinate system
         var leftTopScreen = Camera.main.WorldToScreenPoint(leftTop);
         var rightTopScreen = Camera.main.WorldToScreenPoint(rightTop);
         var leftBottomScreen = Camera.main.WorldToScreenPoint(leftBottom);
         var rightBottomScreen = Camera.main.WorldToScreenPoint(rightBottom);
 #endif
-        // 投影座標系を，PhotoCaptureが撮影する画像上での座標に変換
+        // Convert projected coordinate system to coordinates on the image taken by PhotoCapture
         int leftSide = (int)(leftTopScreen.x / (float)Camera.main.pixelWidth * cameraParameters.cameraResolutionWidth);
         int rightSide = (int)(rightTopScreen.x / (float)Camera.main.pixelWidth * cameraParameters.cameraResolutionWidth);
         int bottomSide = (int)(leftBottomScreen.y / (float)Camera.main.pixelHeight * cameraParameters.cameraResolutionHeight);
         int topSide = (int)(leftTopScreen.y / (float)Camera.main.pixelHeight * cameraParameters.cameraResolutionHeight);
 
-        // 上下反転
+        // flip upside down
         List<byte> flippedBuffer = flipVertical(src, cameraParameters.cameraResolutionWidth, cameraParameters.cameraResolutionHeight, stride);
 
         byte[] dst = new byte[src.Count];
@@ -134,7 +132,7 @@ public class PhotoInput : MonoBehaviour {
     }
 
     /// <summary>
-    /// 上下反転します．
+    /// Flip upside down.
     /// </summary>
     List<byte> flipVertical(List<byte> src, int width, int height, int stride) {
         byte[] dst = new byte[src.Count];
